@@ -80,13 +80,11 @@
             const temCobertura2 = O2Input !== '';
             const O2 = temCobertura2 ? parseFloat(O2Input) : 0;
 
-            // Validação dos campos obrigatórios
             if(!FB || !OF || !O1){ 
                 document.getElementById('saida').innerHTML = '<div style="color:#ef4444">Preencha os campos obrigatórios: Freebet, Odd Freebet e Odd Cobertura 1.</div>';
                 return; 
             }
 
-            // Validação de valores mínimos
             if(FB <= 0 || OF < 1 || O1 < 1 || (temCobertura2 && O2 < 1)){
                 document.getElementById('saida').innerHTML = '<div style="color:#ef4444">Verifique os valores inseridos. Todos devem ser positivos e odds maiores que 1.</div>';
                 return;
@@ -100,7 +98,6 @@
                 b = ganhoFreebet / O2;
                 lucro = ganhoFreebet - a - b;
                 
-                // Verifica se o lucro é positivo
                 if(lucro <= 0){
                     document.getElementById('saida').innerHTML = '<div style="color:#ef4444">Não é possível garantir lucro com essas odds. Tente valores diferentes.</div>';
                     return;
@@ -140,7 +137,6 @@
                 a = ganhoFreebet / O1;
                 lucro = ganhoFreebet - a;
                 
-                // Verifica se o lucro é positivo
                 if(lucro <= 0){
                     document.getElementById('saida').innerHTML = '<div style="color:#ef4444">Não é possível garantir lucro com essas odds. Tente valores diferentes.</div>';
                     return;
