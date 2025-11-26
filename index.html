@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Freebet - Lucro Garantido</title>
+    <title>Calculadora Freebet - jaum é gay</title>
     <style>
         :root{ --bg:#0f1724; --card:#0b1220; --accent:#06b6d4; --muted:#94a3b8; }
         *{box-sizing:border-box; margin:0; padding:0;}
         body{ font-family:Inter, system-ui, Arial, sans-serif; background:linear-gradient(180deg,#071129,#07162a); color:#e6eef6; display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
         .card{ width:100%; max-width:720px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:22px; box-shadow:0 10px 30px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.03); }
         h1{margin:0 0 10px;font-size:20px}
-        .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+        .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
         label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
         input[type=number]{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);color:inherit;font-size:15px}
         .controls{display:flex;gap:10px;margin-top:12px}
@@ -37,6 +37,7 @@
                 <label for="oddFB">Odd da Freebet</label>
                 <input id="oddFB" type="number" step="0.01" placeholder="Ex: 3.70" min="1">
             </div>
+            <div></div>
             <div>
                 <label for="odd1">Odd Cobertura 1</label>
                 <input id="odd1" type="number" step="0.01" placeholder="Ex: 2.15" min="1">
@@ -44,6 +45,10 @@
             <div>
                 <label for="odd2">Odd Cobertura 2 (opcional)</label>
                 <input id="odd2" type="number" step="0.01" placeholder="Ex: 3.40" min="1">
+            </div>
+            <div>
+                <label for="odd3">Odd Cobertura 3 (opcional)</label>
+                <input id="odd3" type="number" step="0.01" placeholder="Ex: 4.50" min="1">
             </div>
         </div>
         
@@ -69,6 +74,7 @@
             document.getElementById('oddFB').value = '';
             document.getElementById('odd1').value = '';
             document.getElementById('odd2').value = '';
+            document.getElementById('odd3').value = '';
             document.getElementById('saida').innerHTML = '<div class="placeholder">Preencha os valores acima e clique em Calcular</div>';
         }
         
@@ -77,23 +83,75 @@
             const OF = parseFloat(document.getElementById('oddFB').value);
             const O1 = parseFloat(document.getElementById('odd1').value);
             const O2Input = document.getElementById('odd2').value;
+            const O3Input = document.getElementById('odd3').value;
+            
             const temCobertura2 = O2Input !== '';
+            const temCobertura3 = O3Input !== '';
             const O2 = temCobertura2 ? parseFloat(O2Input) : 0;
+            const O3 = temCobertura3 ? parseFloat(O3Input) : 0;
 
             if(!FB || !OF || !O1){ 
                 document.getElementById('saida').innerHTML = '<div style="color:#ef4444">Preencha os campos obrigatórios: Freebet, Odd Freebet e Odd Cobertura 1.</div>';
                 return; 
             }
 
-            if(FB <= 0 || OF < 1 || O1 < 1 || (temCobertura2 && O2 < 1)){
+            if(FB <= 0 || OF < 1 || O1 < 1 || (temCobertura2 && O2 < 1) || (temCobertura3 && O3 < 1)){
                 document.getElementById('saida').innerHTML = '<div style="color:#ef4444">Verifique os valores inseridos. Todos devem ser positivos e odds maiores que 1.</div>';
                 return;
             }
 
             const ganhoFreebet = FB * (OF - 1);
-            let a, b, lucro;
+            let a, b, c, lucro;
 
-            if(temCobertura2){
+            if(temCobertura2 && temCobertura3){
+                a = ganhoFreebet / O1;
+                b = ganhoFreebet / O2;
+                c = ganhoFreebet / O3;
+                lucro = ganhoFreebet - a - b - c;
+                
+                if(lucro <= 0){
+                    document.getElementById('saida').innerHTML = '<div style="color:#ef4444">Não é possível garantir lucro com essas odds. Tente valores diferentes.</div>';
+                    return;
+                }
+                
+                const lucroIfFree = ganhoFreebet - a - b - c;
+                const lucroIf1 = a * (O1 - 1) - b - c;
+                const lucroIf2 = b * (O2 - 1) - a - c;
+                const lucroIf3 = c * (O3 - 1) - a - b;
+
+                document.getElementById('saida').innerHTML = `
+                    <table>
+                        <tr><th>Cenário</th><th>Cálculo</th><th>Lucro</th></tr>
+                        <tr>
+                            <td>Freebet (${OF.toFixed(2)})</td>
+                            <td>${ganhoFreebet.toFixed(2)} − ${a.toFixed(2)} − ${b.toFixed(2)} − ${c.toFixed(2)}</td>
+                            <td class="profit-equal"><b>${toBRL(lucroIfFree)}</b></td>
+                        </tr>
+                        <tr>
+                            <td>Cobertura 1 (${O1.toFixed(2)})</td>
+                            <td>${a.toFixed(2)} × ${(O1-1).toFixed(2)} − ${b.toFixed(2)} − ${c.toFixed(2)}</td>
+                            <td class="profit-equal"><b>${toBRL(lucroIf1)}</b></td>
+                        </tr>
+                        <tr>
+                            <td>Cobertura 2 (${O2.toFixed(2)})</td>
+                            <td>${b.toFixed(2)} × ${(O2-1).toFixed(2)} − ${a.toFixed(2)} − ${c.toFixed(2)}</td>
+                            <td class="profit-equal"><b>${toBRL(lucroIf2)}</b></td>
+                        </tr>
+                        <tr>
+                            <td>Cobertura 3 (${O3.toFixed(2)})</td>
+                            <td>${c.toFixed(2)} × ${(O3-1).toFixed(2)} − ${a.toFixed(2)} − ${b.toFixed(2)}</td>
+                            <td class="profit-equal"><b>${toBRL(lucroIf3)}</b></td>
+                        </tr>
+                    </table>
+                    <div style="margin-top:12px; text-align:left;">
+                        <div><strong>Valores para Apostar:</strong></div>
+                        <div>Freebet: <strong>${toBRL(FB)}</strong> (odd ${OF.toFixed(2)})</div>
+                        <div>Cobertura 1: <strong>${toBRL(a)}</strong> (odd ${O1.toFixed(2)})</div>
+                        <div>Cobertura 2: <strong>${toBRL(b)}</strong> (odd ${O2.toFixed(2)})</div>
+                        <div>Cobertura 3: <strong>${toBRL(c)}</strong> (odd ${O3.toFixed(2)})</div>
+                        <div style="margin-top:6px;color:#10b981">Lucro garantido: <strong>${toBRL(lucro)}</strong></div>
+                    </div>`;
+            } else if(temCobertura2){
                 a = ganhoFreebet / O1;
                 b = ganhoFreebet / O2;
                 lucro = ganhoFreebet - a - b;
@@ -132,6 +190,48 @@
                         <div>Cobertura 1: <strong>${toBRL(a)}</strong> (odd ${O1.toFixed(2)})</div>
                         <div>Cobertura 2: <strong>${toBRL(b)}</strong> (odd ${O2.toFixed(2)})</div>
                         <div style="margin-top:6px;color:#10b981">Lucro garantido: <strong>${toBRL(lucro)}</strong></div>
+                        <div style="color:var(--muted); font-size:12px; margin-top:4px">*Cobertura 3 ignorada (campo vazio)</div>
+                    </div>`;
+            } else if(temCobertura3){
+                a = ganhoFreebet / O1;
+                c = ganhoFreebet / O3;
+                lucro = ganhoFreebet - a - c;
+                
+                if(lucro <= 0){
+                    document.getElementById('saida').innerHTML = '<div style="color:#ef4444">Não é possível garantir lucro com essas odds. Tente valores diferentes.</div>';
+                    return;
+                }
+                
+                const lucroIfFree = ganhoFreebet - a - c;
+                const lucroIf1 = a * (O1 - 1) - c;
+                const lucroIf3 = c * (O3 - 1) - a;
+
+                document.getElementById('saida').innerHTML = `
+                    <table>
+                        <tr><th>Cenário</th><th>Cálculo</th><th>Lucro</th></tr>
+                        <tr>
+                            <td>Freebet (${OF.toFixed(2)})</td>
+                            <td>${ganhoFreebet.toFixed(2)} − ${a.toFixed(2)} − ${c.toFixed(2)}</td>
+                            <td class="profit-equal"><b>${toBRL(lucroIfFree)}</b></td>
+                        </tr>
+                        <tr>
+                            <td>Cobertura 1 (${O1.toFixed(2)})</td>
+                            <td>${a.toFixed(2)} × ${(O1-1).toFixed(2)} − ${c.toFixed(2)}</td>
+                            <td class="profit-equal"><b>${toBRL(lucroIf1)}</b></td>
+                        </tr>
+                        <tr>
+                            <td>Cobertura 3 (${O3.toFixed(2)})</td>
+                            <td>${c.toFixed(2)} × ${(O3-1).toFixed(2)} − ${a.toFixed(2)}</td>
+                            <td class="profit-equal"><b>${toBRL(lucroIf3)}</b></td>
+                        </tr>
+                    </table>
+                    <div style="margin-top:12px; text-align:left;">
+                        <div><strong>Valores para Apostar:</strong></div>
+                        <div>Freebet: <strong>${toBRL(FB)}</strong> (odd ${OF.toFixed(2)})</div>
+                        <div>Cobertura 1: <strong>${toBRL(a)}</strong> (odd ${O1.toFixed(2)})</div>
+                        <div>Cobertura 3: <strong>${toBRL(c)}</strong> (odd ${O3.toFixed(2)})</div>
+                        <div style="margin-top:6px;color:#10b981">Lucro garantido: <strong>${toBRL(lucro)}</strong></div>
+                        <div style="color:var(--muted); font-size:12px; margin-top:4px">*Cobertura 2 ignorada (campo vazio)</div>
                     </div>`;
             } else {
                 a = ganhoFreebet / O1;
@@ -164,7 +264,7 @@
                         <div>Freebet: <strong>${toBRL(FB)}</strong> (odd ${OF.toFixed(2)})</div>
                         <div>Cobertura 1: <strong>${toBRL(a)}</strong> (odd ${O1.toFixed(2)})</div>
                         <div style="margin-top:6px;color:#10b981">Lucro garantido: <strong>${toBRL(lucro)}</strong></div>
-                        <div style="color:var(--muted); font-size:12px; margin-top:4px">*Cobertura 2 ignorada (campo vazio)</div>
+                        <div style="color:var(--muted); font-size:12px; margin-top:4px">*Cobertura 2 e 3 ignoradas (campos vazios)</div>
                     </div>`;
             }
         }
